@@ -781,7 +781,13 @@ async function startCamera() {
       video: { facingMode, width: { ideal: 1200 }, height: { ideal: 1600 } },
       audio: false
     });
-    video.srcObject = currentStream;
+    const v = document.getElementById('video');
+    v.srcObject = currentStream;
+    // 等 video 真正就緒後再允許拍攝
+    await new Promise(resolve => {
+      if (v.readyState >= 1) resolve();
+      else v.addEventListener('loadedmetadata', resolve, { once: true });
+    });
     document.getElementById('cameraTip').style.display = '';
   } catch (e) {
     document.getElementById('cameraTip').textContent = '無法開啟相機，請確認相機權限';
@@ -804,6 +810,12 @@ let currentFilter = 'original';
 function capturePhoto() {
   const v = document.getElementById('video');
   const c = document.getElementById('captureCanvas');
+
+  if (!v.videoWidth || !v.videoHeight) {
+    showToast('相機尚未就緒，請稍候');
+    return;
+  }
+
   c.width = v.videoWidth;
   c.height = v.videoHeight;
   const ctx = c.getContext('2d');
