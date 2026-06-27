@@ -1121,6 +1121,10 @@ document.getElementById('installBtn').addEventListener('click', async () => {
 // ═══════════════════════════════════════════
 
 (async () => {
+  // Register Service Worker for PWA
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/life-diary/sw.js').catch(() => {});
+  }
   await openDB();
   initStyleStrip();
   startCamera();
